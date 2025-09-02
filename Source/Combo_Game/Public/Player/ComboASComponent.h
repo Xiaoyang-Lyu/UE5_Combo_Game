@@ -22,6 +22,26 @@ enum class EComboInput : uint8
 	B,
 };
 
+
+USTRUCT(BlueprintType)
+struct FComboAction
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "Combo Node")
+	TSubclassOf<UGameplayAbility> Ability;
+
+	UPROPERTY(EditAnywhere, Category = "Combo Node")
+	float DegreeLimit = 180.0f;
+
+	bool operator==(const FComboAction& Other) const
+	{
+		return Ability == Other.Ability;
+	}
+};
+
+
+
 USTRUCT(BlueprintType)
 struct FComboNode
 {
@@ -33,11 +53,8 @@ struct FComboNode
 	UPROPERTY(EditAnywhere,Category = "Combo Node")
 	FName ComboName;
 
-	UPROPERTY(EditAnywhere,Category = "Combo Node")
-	TSubclassOf<UGameplayAbility> Ability;
-
-	UPROPERTY(EditAnywhere,Category = "Combo Node")
-	float DegreeLimit = 180.0f;
+	UPROPERTY(EditAnywhere, Category = "Combo Node")
+	FComboAction Action;
 
 	UPROPERTY(EditAnywhere, Category = "Combo Node")
 	TMap<EComboInput, int32> NextComboMap;
@@ -53,6 +70,10 @@ FORCEINLINE uint32 GetTypeHash(const FComboNode& Node)
 	return ::GetTypeHash(Node.ComboId);
 }
 
+FORCEINLINE uint32 GetTypeHash(const FComboAction& Action)
+{
+	return ::GetTypeHash(Action.Ability);
+}
 
 
 UCLASS(BlueprintType)
@@ -77,11 +98,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	UComboASDataAsset* ComboASDataAsset;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
+	UPROPERTY(BlueprintReadWrite, Category = "Combo")
 	TSet<FComboNode> ComboNodes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
 	int32 NoneComboId = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Action")
+	TSet<FComboAction> Actions;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<class UInputAction> MoveAction;
@@ -131,6 +155,14 @@ public:
 	void ResetCombo(float DelayTime);
 	UFUNCTION(BlueprintPure, Category = "Combo")
 	bool IsComboResetPending() const;
+
+	// 局内获取动作/添加节点
+	UFUNCTION(BlueprintCallable, Category = "Combo RunTime")
+	void AddComboAction(FComboAction& NewAction);
+	UFUNCTION(BlueprintCallable, Category = "Combo RunTime")
+	bool AddComboNode(FComboNode& NewNode);
+	UFUNCTION(BlueprintCallable, Category = "Combo RunTime")
+	bool DeleteComboNode(int32 ComboId);
 
 protected:
 	virtual void BeginPlay() override;

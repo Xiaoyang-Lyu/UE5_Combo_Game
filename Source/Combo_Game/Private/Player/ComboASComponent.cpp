@@ -44,9 +44,10 @@ void UComboASComponent::InitializeAbilities()
 	for (const FComboNode& Node : ComboASDataAsset->BaseComboNodes)
 	{
 		ComboNodes.Add(Node);
-		if (Node.Ability)
+		if (Node.Action.Ability)
 		{
-			FGameplayAbilitySpec AbilitySpec(Node.Ability, 1, Node.ComboId);
+			Actions.Add(Node.Action);
+			FGameplayAbilitySpec AbilitySpec(Node.Action.Ability, 1, Node.ComboId);
 			GiveAbility(AbilitySpec);
 		}
 	}
@@ -189,13 +190,13 @@ bool  UComboASComponent::ComboInput(EComboInput Input)
 
 			if (FComboNode* NextNode = ComboNodes.Find(FComboNode(CurrentComboId)))
 			{
-				if (NextNode->Ability)
+				if (IsValid(NextNode->Action.Ability))
 				{
-					bool Succees =  TryActivateAbilityByClass(*NextNode->Ability);
+					bool Succees =  TryActivateAbilityByClass(*NextNode->Action.Ability);
 					if (Succees)
 					{
 						const FVector DesiredMoveDir = GetMovementInputDirection();
-						RotateYawTowardDesired(GetOwner(), DesiredMoveDir, NextNode->DegreeLimit);
+						RotateYawTowardDesired(GetOwner(), DesiredMoveDir, NextNode->Action.DegreeLimit);
 						bComboEnd = false;
 						CancelComboResetTimer();
 						return true;
@@ -296,4 +297,71 @@ void UComboASComponent::HandleComboEndTimer()
 	{
 		World->GetTimerManager().ClearTimer(ComboEndTimerHandle);
 	}
+}
+
+void UComboASComponent::AddComboAction(FComboAction& NewAction)
+{
+	if (!IsValid(NewAction.Ability))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UComboASComponent] AddComboAction failed: Ability is null"));
+		return;
+	}
+
+	for (const FComboAction& Action : Actions)
+	{
+		if (Action.Ability == NewAction.Ability)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[UComboASComponent] AddComboAction failed: Ability already exists"));
+			return;
+		}
+	}
+
+	FGameplayAbilitySpec AbilitySpec(NewAction.Ability, 1, Actions.Num());
+	GiveAbility(AbilitySpec);
+	Actions.Add(NewAction);
+}
+
+bool UComboASComponent::AddComboNode(FComboNode& NewNode)
+{
+	if (NewNode.ComboId == NoneComboId)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UComboASComponent] AddComboNode failed: ComboId cannot be NoneComboId"));
+		return false;
+	}
+
+	if (ComboNodes.Contains(NewNode))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UComboASComponent] AddComboNode failed: ComboId already exists"));
+		return false;
+	}
+
+	if (!IsValid(NewNode.Action.Ability))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UComboASComponent] AddComboNode failed: Ability is null"));
+		return false;
+	}
+
+	ComboNodes.Add(NewNode);
+	return true;
+}
+
+bool UComboASComponent::DeleteComboNode(int32 ComboId)
+{
+	if (ComboId == NoneComboId)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UComboASComponent] DeleteComboNode failed: ComboId cannot be NoneComboId"));
+		return false;
+	}
+
+	if (FComboNode* Node = ComboNodes.Find(FComboNode(ComboId)))
+	{
+		ComboNodes.Remove(*Node);
+		return true;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UComboASComponent] DeleteComboNode failed: ComboId not found"));
+		return false;
+	}
+
 }
