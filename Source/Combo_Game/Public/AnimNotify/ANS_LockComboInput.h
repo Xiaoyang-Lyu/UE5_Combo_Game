@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
@@ -7,7 +7,7 @@
 class UComboASComponent;
 
 /**
- * ÔÚÍ¨ÖªÇø¼äÄÚËø¶¨Á¬»÷ÊäÈë£»ÎŞÂÛÃÉÌ«Ææ×ÔÈ»½áÊø»¹ÊÇ±»´ò¶Ï£¬¶¼»áÔÚÀë¿ªÇø¼äÊ±½âËø¡£
+ * åœ¨é€šçŸ¥åŒºé—´å†…é”å®šè¿å‡»è¾“å…¥ï¼›æ— è®ºè’™å¤ªå¥‡è‡ªç„¶ç»“æŸè¿˜æ˜¯è¢«æ‰“æ–­ï¼Œéƒ½ä¼šåœ¨ç¦»å¼€åŒºé—´æ—¶è§£é”ã€‚
  */
 UCLASS(meta = (DisplayName = "Lock Combo Input"))
 class COMBO_GAME_API UANS_LockComboInput : public UAnimNotifyState
@@ -15,7 +15,7 @@ class COMBO_GAME_API UANS_LockComboInput : public UAnimNotifyState
 	GENERATED_BODY()
 
 public:
-	/** ½öÓÃÓÚ¿ª·¢ÆÚÈÕÖ¾ */
+	/** ä»…ç”¨äºå¼€å‘æœŸæ—¥å¿— */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LockCombo")
 	bool bDebugLog = false;
 

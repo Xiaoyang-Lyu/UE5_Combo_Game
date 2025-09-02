@@ -95,9 +95,13 @@ private:
 
 	UPROPERTY()
 	bool bLockInput = false;
+	UPROPERTY()
+	bool bLockRoll = false;
 
 	UPROPERTY()
 	int32 LockInputCount = 0;
+	UPROPERTY()
+	int32 LockRollCount = 0;
 
 	UPROPERTY()
 	bool bComboEnd = true;
@@ -119,6 +123,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Combo")
 	void LockComboInput(bool bLock);
+
+	UFUNCTION(BlueprintCallable, Category = "Combo")
+	void LockRoll(bool bLock);
 
 	UFUNCTION(BlueprintCallable, Category = "Combo")
 	void ResetCombo(float DelayTime);

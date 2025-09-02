@@ -137,8 +137,7 @@ void UComboASComponent::RotateYawTowardDesired(AActor* Owner, const FVector& Des
 
 void UComboASComponent::Roll()
 {
-	// TODO: 之后bLockRoll，翻滚可能可以比连招更早取消当前动作
-	if (bLockInput) return;
+	if (bLockRoll) return;
 
     if (!ComboASDataAsset)
     {
@@ -157,6 +156,16 @@ void UComboASComponent::Roll()
 	//rotate to desired dir
 	FRotator TargetRot = DesiredMoveDir.Rotation();
 	Character->SetActorRotation(TargetRot);
+
+	FGameplayAbilitySpec* Spec = FindAbilitySpecFromClass(*ComboASDataAsset->RollAbilities.Find(EInputDirection::Front));
+
+	for (UGameplayAbility* Instance : Spec->GetAbilityInstances())
+	{
+		if (Instance && Instance->CanBeCanceled())
+		{
+			CancelAbility(Instance);
+		}
+	}
 
     TryActivateAbilityByClass(*ComboASDataAsset->RollAbilities.Find(EInputDirection::Front));
 	CurrentComboId = NoneComboId;
@@ -214,8 +223,30 @@ void UComboASComponent::LockComboInput(bool bLock)
 			bLockInput = false;
 		}
 	}
+	//print
+	GEngine->AddOnScreenDebugMessage(-1, 0.4f, FColor::Yellow, FString::Printf(TEXT("LockInputCount: %d, bLockInput: %d"), LockInputCount, bLockInput));
 }
 
+
+void UComboASComponent::LockRoll(bool bLock)
+{
+	if (bLock)
+	{
+		LockRollCount++;
+		bLockRoll = true;
+	}
+	else
+	{
+		LockRollCount--;
+		if (LockRollCount <= 0)
+		{
+			LockRollCount = 0;
+			bLockRoll = false;
+		}
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 0.4f, FColor::Yellow, FString::Printf(TEXT("LockRollCount: %d, bLockRoll: %d"), LockRollCount, bLockRoll));
+}
 
 void UComboASComponent::ResetCombo(float DelayTime)
 {

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "AnimNotify/ANS_LockComboInput.h"
@@ -54,7 +54,7 @@ void UANS_LockComboInput::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeq
 void UANS_LockComboInput::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference)
 {
-	// ÎŞÂÛÊÇ·ñ±»´ò¶Ï£¬Ö»ÒªÀë¿ªÕâ¸ö×´Ì¬Çø¼ä£¬ÒıÇæ¶¼»áµ÷ÓÃ End£¬ÕâÀïÍ³Ò»½âËø¼´¿É
+	// æ— è®ºæ˜¯å¦è¢«æ‰“æ–­ï¼Œåªè¦ç¦»å¼€è¿™ä¸ªçŠ¶æ€åŒºé—´ï¼Œå¼•æ“éƒ½ä¼šè°ƒç”¨ Endï¼Œè¿™é‡Œç»Ÿä¸€è§£é”å³å¯
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 	DoUnlock(MeshComp);
 }
