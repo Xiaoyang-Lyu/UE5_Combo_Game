@@ -299,7 +299,7 @@ void UComboASComponent::HandleComboEndTimer()
 	}
 }
 
-void UComboASComponent::AddComboAction(FComboAction& NewAction)
+void UComboASComponent::AddComboAction(FComboAction NewAction)
 {
 	if (!IsValid(NewAction.Ability))
 	{
@@ -307,13 +307,10 @@ void UComboASComponent::AddComboAction(FComboAction& NewAction)
 		return;
 	}
 
-	for (const FComboAction& Action : Actions)
+	if(Actions.Contains(NewAction))
 	{
-		if (Action.Ability == NewAction.Ability)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[UComboASComponent] AddComboAction failed: Ability already exists"));
-			return;
-		}
+		UE_LOG(LogTemp, Warning, TEXT("[UComboASComponent] AddComboAction failed: Action already exists"));
+		return;
 	}
 
 	FGameplayAbilitySpec AbilitySpec(NewAction.Ability, 1, Actions.Num());
@@ -321,7 +318,7 @@ void UComboASComponent::AddComboAction(FComboAction& NewAction)
 	Actions.Add(NewAction);
 }
 
-bool UComboASComponent::AddComboNode(FComboNode& NewNode)
+bool UComboASComponent::AddComboNode(FComboNode NewNode)
 {
 	if (NewNode.ComboId == NoneComboId)
 	{
