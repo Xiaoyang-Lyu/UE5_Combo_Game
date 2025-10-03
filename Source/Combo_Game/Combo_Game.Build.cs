@@ -26,7 +26,11 @@ public class Combo_Game : ModuleRules
             "MotionWarping"
         });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { 
+			"SlateCore",
+            "Slate",
+
+                });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "UI/UIManager.h"
 #include "TestGameModeBase.generated.h"
 
 /**
@@ -13,5 +14,11 @@ UCLASS()
 class COMBO_GAME_API ATestGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
+public:
+    virtual void StartPlay() override;
+
+private:
+    UPROPERTY()
+    UUIManager* UIManager;	
 };
