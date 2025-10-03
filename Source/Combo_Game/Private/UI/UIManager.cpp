@@ -51,7 +51,7 @@ void UUIManager::CreateMainUI()
                 .Padding(5.0f)
                 [
                     SNew(SButton)
-                    .Text(FText::FromString("添加横向框"))
+                    .Text(FText::FromString("Add Combo Series"))
                     .OnClicked_Lambda([this]()
                     {
                         this->AddHorizontalBox();
@@ -97,7 +97,7 @@ void UUIManager::AddHorizontalBox()
     int32 BoxIndex = HorizontalBoxContainers.Num();
     
     // 创建横向框容器
-    TSharedPtr<SVerticalBox> VerticalBoxInHorizontal;
+    TSharedPtr<SHorizontalBox> HorizontalBoxInHorizontal;
     TSharedPtr<SHorizontalBox> NewHorizontalBox;
     
     MainContainer->AddSlot()
@@ -123,7 +123,7 @@ void UUIManager::AddHorizontalBox()
                 .Padding(0.0f, 0.0f, 10.0f, 0.0f)
                 [
                     SNew(STextBlock)
-                    .Text(FText::FromString(FString::Printf(TEXT("横向框 %d"), BoxIndex + 1)))
+                    .Text(FText::FromString(FString::Printf(TEXT("Combo Series %d"), BoxIndex + 1)))
                     .ColorAndOpacity(FLinearColor::Yellow)
                 ]
                 
@@ -131,10 +131,10 @@ void UUIManager::AddHorizontalBox()
                 .AutoWidth()
                 [
                     SNew(SButton)
-                    .Text(FText::FromString("添加纵向按钮"))
+                    .Text(FText::FromString("Add Movement"))
                     .OnClicked_Lambda([this, BoxIndex]()
                     {
-                        this->AddVerticalButtonToBox(BoxIndex, FString::Printf(TEXT("按钮 %d"), FMath::RandRange(1, 100)));
+                        this->AddMovement(BoxIndex, FString::Printf(TEXT("按钮 %d"), FMath::RandRange(1, 100)));
                         return FReply::Handled();
                     })
                 ]
@@ -165,41 +165,54 @@ void UUIManager::AddHorizontalBox()
             + SVerticalBox::Slot()
             .AutoHeight()
             [
-                SAssignNew(VerticalBoxInHorizontal, SVerticalBox)
+                SAssignNew(HorizontalBoxInHorizontal, SHorizontalBox)
             ]
         ]
     ];
     
     // 保存引用
-    HorizontalBoxContainers.Add(VerticalBoxInHorizontal);
+    HorizontalBoxContainers.Add(HorizontalBoxInHorizontal);
     
     UE_LOG(LogTemp, Warning, TEXT("添加了横向框 %d"), BoxIndex);
 }
 
-void UUIManager::AddVerticalButtonToBox(int32 BoxIndex, const FString& ButtonText)
+void UUIManager::AddMovement(int32 BoxIndex, const FString& ButtonText)
 {
     if (!HorizontalBoxContainers.IsValidIndex(BoxIndex)) return;
     
-    TSharedPtr<SVerticalBox> TargetBox = HorizontalBoxContainers[BoxIndex];
+    TSharedPtr<SHorizontalBox> TargetBox = HorizontalBoxContainers[BoxIndex];
     if (!TargetBox.IsValid()) return;
     
-    TargetBox->AddSlot()
-    .AutoHeight()
-    .Padding(0.0f, 2.0f)
-    [
-        SNew(SButton)
-        .Text(FText::FromString(ButtonText))
-        .OnClicked_Lambda([ButtonText, BoxIndex]()
-        {
-            UE_LOG(LogTemp, Warning, TEXT("横向框 %d 的按钮被点击: %s"), BoxIndex + 1, *ButtonText);
-            return FReply::Handled();
-        })
-        .Content()
+    // int32 CurrentButtonCount = HorizontalBoxContainers->GetChildren()->Num();
+    // // 如果不是第一个按钮，先添加箭头
+    // if (CurrentButtonCount > 0)
+        TargetBox->AddSlot()
+        .AutoWidth()
+        .Padding(5.0f, 0.0f)
         [
             SNew(STextBlock)
+            .Text(FText::FromString("-->"))
+            .ColorAndOpacity(FLinearColor::Yellow)
+            .Font(FCoreStyle::GetDefaultFontStyle("Bold", 12))
+        ];
+    TargetBox->AddSlot()
+    .AutoWidth()
+    .Padding(0.0f, 2.0f)
+    [
+            SNew(SButton)
             .Text(FText::FromString(ButtonText))
-            .Justification(ETextJustify::Center)
-        ]
+            .OnClicked_Lambda([ButtonText, BoxIndex]()
+            {
+                UE_LOG(LogTemp, Warning, TEXT("横向框 %d 的按钮被点击: %s"), BoxIndex + 1, *ButtonText);
+                return FReply::Handled();
+            })
+            .Content()
+            [
+                SNew(STextBlock)
+                .Text(FText::FromString(ButtonText))
+                .Justification(ETextJustify::Center)
+            ]
+
     ];
     
     UE_LOG(LogTemp, Warning, TEXT("向横向框 %d 添加按钮: %s"), BoxIndex + 1, *ButtonText);

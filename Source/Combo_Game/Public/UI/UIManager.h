@@ -31,12 +31,12 @@ class COMBO_GAME_API UUIManager : public UObject
     // 保存窗口引用
     TSharedPtr<SWindow> MainWindow;
 
-    TArray<TSharedPtr<SVerticalBox>> HorizontalBoxContainers;
+    TArray<TSharedPtr<SHorizontalBox>> HorizontalBoxContainers;
     TSharedPtr<SVerticalBox>         MainContainer;
 
     // 方法声明
     void AddHorizontalBox();
-    void AddVerticalButtonToBox(int32 BoxIndex, const FString& ButtonText);
+    void AddMovement(int32 BoxIndex, const FString& ButtonText);
 
 void RemoveHorizontalBox(int32 BoxIndex);
 };
