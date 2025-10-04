@@ -9,11 +9,38 @@
 #include "Widgets/Layout/SBorder.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Engine/GameViewportClient.h"
+#include "Player/ComboASComponent.h"
+
+
 
 void UUIManager::CreateMainUI()
 {
+    // 构建数据资产的引用路径
+    FString AssetPath = TEXT("/Content/Asset/Player/ComboData.ComboData");
+    ComboDataAsset = LoadObject<UComboASDataAsset>(nullptr, *AssetPath);
+    
+    if (ComboDataAsset)
+    {
+        // 成功加载数据资产，现在可以访问其中的数据
+        TArray<FComboNode>& ComboNodes = ComboDataAsset->BaseComboNodes;
+        
+        // 遍历 ComboNodes 或进行其他操作
+        for (const FComboNode& Node : ComboNodes)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Combo ID: %d, Name: %s"), Node.ComboId, *Node.ComboName.ToString());
+            // 这里可以添加您的逻辑，例如将连招节点信息显示在UI上
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to load ComboData asset at path: %s"), *AssetPath);
+    }
+
+
+
+
     // 检查是否已经存在窗口
-    if (MainWindow.IsValid())
+    if (!MainWindow.IsValid())
     {
         return;
     }
@@ -152,8 +179,21 @@ void UUIManager::AddHorizontalBox()
                         return FReply::Handled();
                     })
                 ]
+
             ]
-            
+
+            + SVerticalBox::Slot()
+            .AutoHeight()
+            .Padding(0.0f, 0.0f, 0.0f, 5.0f)
+            [
+                SNew(STextBlock)
+                .Text_Lambda([this, BoxIndex]()
+                {
+                    return FText::FromString(this->GetArrowPattern(BoxIndex)); 
+                })
+                .Font(FCoreStyle::GetDefaultFontStyle("Bold", 10))
+                .Justification(ETextJustify::Center)
+            ]
             // 实际的横向布局 - 里面包含纵向按钮
             + SVerticalBox::Slot()
             .AutoHeight()
@@ -234,3 +274,21 @@ void UUIManager::RemoveHorizontalBox(int32 BoxIndex)
         UE_LOG(LogTemp, Warning, TEXT("需要重新实现删除逻辑"));
     }
 }
+FString UUIManager::GetArrowPattern(int32 GroupIndex) const
+{
+    switch (GroupIndex)
+    {
+        case 0: return "a-->a-->a-->a";
+        case 1: return "b-->b-->b-->b"; 
+        case 2: return "a-->a-->b-->b";
+        case 3: return "b-->b-->a-->a";
+        default: return "未知模式";
+    }
+}
+void UUIManager::AddPatternLabel(int32 GroupIndex, TSharedPtr<SVerticalBox> Container)
+{
+    if (!Container.IsValid()) return;
+}
+
+
+
