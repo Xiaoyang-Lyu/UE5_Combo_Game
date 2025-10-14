@@ -362,3 +362,12 @@ bool UComboASComponent::DeleteComboNode(int32 ComboId)
 	}
 
 }
+
+FComboNode UComboASComponent::GetComboNodeByID(int32 ComboId) const
+{
+	if (const FComboNode* Node = ComboNodes.Find(FComboNode(ComboId)))
+	{
+		return *Node;
+	}
+	return FComboNode();
+}

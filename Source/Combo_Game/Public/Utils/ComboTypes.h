@@ -55,16 +55,16 @@ struct FComboNode
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "Combo Node")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
 	int32 ComboId;
 
-	UPROPERTY(EditAnywhere, Category = "Combo Node")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
 	FName ComboName;
 
-	UPROPERTY(EditAnywhere, Category = "Combo Node")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
 	FComboAction Action;
 
-	UPROPERTY(EditAnywhere, Category = "Combo Node")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
 	TMap<EComboInput, int32> NextComboMap;
 
 	bool operator==(const FComboNode& Other) const
