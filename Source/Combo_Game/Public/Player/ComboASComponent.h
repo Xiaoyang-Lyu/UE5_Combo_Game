@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<class UInputAction> MoveAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	float BasicPower = 10.0f;
+
 private:
 	UPROPERTY()
 	int32 CurrentComboId = 0;
@@ -102,4 +105,5 @@ private:
 	UFUNCTION()
 	FVector GetMovementInputDirection() const;
 	void RotateYawTowardDesired(AActor* Owner, const FVector& DesiredMoveDir, float DegreeLimitDeg);
+	bool CheckPowerNeeded(FComboAction NextAction, float& Diff);
 };

@@ -24,6 +24,15 @@ enum class EComboInput : uint8
 	B,
 };
 
+UENUM(BlueprintType)
+enum class EActionDirection : uint8	//动作方向，向左挥，向下劈之类的
+{
+	Left UMETA(DisplayName = "Left"),
+	Right UMETA(DisplayName = "Right"),
+	Up UMETA(DisplayName = "Up"),
+	Down UMETA(DisplayName = "Down"),
+};
+
 
 USTRUCT(BlueprintType)
 struct FComboAction
@@ -38,6 +47,17 @@ struct FComboAction
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
 	TSubclassOf<UGameplayAbility> Ability;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
+	TArray<EActionDirection> ActionDirections;
+
+	// 使出该动作所需的爆发力
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
+	float PowerNeeded = 0.0f;
+
+	// 下一动作的爆发力需求会根据这个值进行调整
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
+	float PowerBuffed = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
 	float DegreeLimit = 180.0f;

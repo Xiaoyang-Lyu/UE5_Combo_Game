@@ -172,16 +172,44 @@ void UComboASComponent::Roll()
 	CurrentComboId = NoneComboId;
 }
 
-bool  UComboASComponent::ComboInput(EComboInput Input)
+bool UComboASComponent::ComboInput(EComboInput Input)
 {
 	if (bLockInput) return false;
 
 	if (FComboNode* CurrentNode = ComboNodes.Find(FComboNode(GetCurrentComboId())))
 	{
+		// 先找当前combo的后续
 		int32* NextId = CurrentNode->NextComboMap.Find(Input);
+
+		if (NextId != nullptr)
+		{
+			float PowerDiff = 0.f;
+			FComboAction NextAction = GetComboNodeByID(*NextId).Action;
+			if (!CheckPowerNeeded(NextAction, PowerDiff))
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Not enough power for next action. Need %.1f more power."), PowerDiff));
+				NextId = nullptr;
+			}
+		}
+
+		bool ContinueCombo = NextId != nullptr; // 暂时还没用
+
+		// 若当前combo没有后续，则尝试从初始combo开始找
 		if (!NextId && CurrentComboId != NoneComboId)
 		{
 			NextId = ComboNodes.Find(FComboNode(NoneComboId))->NextComboMap.Find(Input);
+		}
+
+		if (NextId != nullptr)
+		{
+			float PowerDiff = 0.f;
+			FComboAction NextAction = GetComboNodeByID(*NextId).Action;
+			if (!CheckPowerNeeded(NextAction, PowerDiff))
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Not enough power for next action. Need %.1f more power."), PowerDiff));
+				NextId = nullptr;
+				return false;
+			}
 		}
 
 		if (NextId != nullptr)
@@ -394,5 +422,59 @@ void UComboASComponent::SaveComboNodes(TArray<FComboNode> InNodes)
 				ComboNodes.Add(Node);
 			}
 		}
+	}
+}
+
+bool UComboASComponent::CheckPowerNeeded(FComboAction NextAction, float& Diff)
+{
+	if (CurrentComboId == NoneComboId)
+	{
+		Diff = NextAction.PowerNeeded - BasicPower;
+		return Diff <= 0;
+	}
+	FComboNode* CurrentNode = ComboNodes.Find(FComboNode(GetCurrentComboId()));
+	FComboAction CurrentAction = CurrentNode->Action;
+	
+	// Check Direction
+	TSet<EActionDirection> BuffedDirections;
+	for (EActionDirection Dir : CurrentAction.ActionDirections)
+	{
+		if (Dir == EActionDirection::Left)
+		{
+			BuffedDirections.Add(EActionDirection::Right);
+		}
+		else if (Dir == EActionDirection::Right)
+		{
+			BuffedDirections.Add(EActionDirection::Left);
+		}
+		else if (Dir == EActionDirection::Up)
+		{
+			BuffedDirections.Add(EActionDirection::Down);
+		}
+		else if (Dir == EActionDirection::Down)
+		{
+			BuffedDirections.Add(EActionDirection::Up);
+		}
+	}
+
+	bool bBuffed = false;
+	for (EActionDirection Dir : NextAction.ActionDirections)
+	{
+		if (BuffedDirections.Contains(Dir))
+		{
+			bBuffed = true;
+			break;
+		}
+	}
+
+	if (bBuffed)
+	{
+		Diff = NextAction.PowerNeeded - (BasicPower + CurrentAction.PowerBuffed);
+		return Diff <= 0;
+	}
+	else
+	{
+		Diff = NextAction.PowerNeeded - BasicPower;
+		return Diff <= 0;
 	}
 }
