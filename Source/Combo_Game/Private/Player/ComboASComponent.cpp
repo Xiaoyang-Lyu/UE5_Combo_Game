@@ -371,3 +371,28 @@ FComboNode UComboASComponent::GetComboNodeByID(int32 ComboId) const
 	}
 	return FComboNode();
 }
+
+void UComboASComponent::SaveComboNodes(TArray<FComboNode> InNodes)
+{
+	//for each node in InNodes, if ComboId exists, update it, else add it
+	for (const FComboNode& Node : InNodes)
+	{
+		if (Node.ComboId == NoneComboId)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[UComboASComponent] SaveComboNodes skipped: ComboId cannot be NoneComboId"));
+			continue;
+		}
+
+		if (FComboNode* ExistingNode = ComboNodes.Find(FComboNode(Node.ComboId)))
+		{
+			*ExistingNode = Node;
+		}
+		else
+		{
+			if (IsValid(Node.Action.Ability))
+			{
+				ComboNodes.Add(Node);
+			}
+		}
+	}
+}

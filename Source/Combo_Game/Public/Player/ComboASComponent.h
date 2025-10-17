@@ -85,6 +85,9 @@ public:
 	bool DeleteComboNode(int32 ComboId);
 	UFUNCTION(BlueprintCallable, Category = "Combo RunTime")
 	FComboNode GetComboNodeByID(int32 ComboId) const;
+	UFUNCTION(BlueprintCallable, Category = "Combo RunTime")
+	void SaveComboNodes(TArray<FComboNode> InNodes);
+
 
 protected:
 	virtual void BeginPlay() override;
