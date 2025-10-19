@@ -30,6 +30,25 @@ void UComboASComponent::BeginPlay()
 	CurrentComboId = NoneComboId;
 }
 
+FComboNode UComboASComponent::ConstructComboNode(FInitComboNode InitNode)
+{
+	FComboNode NewNode = FComboNode();
+	NewNode.ComboId = InitNode.ComboId;
+	NewNode.NextComboMap = InitNode.NextComboMap;
+	FComboNodesRow* ComboNodesRow = ActionDataTable->FindRow<FComboNodesRow>(InitNode.ActionRowName, TEXT(""));
+
+	if (!ComboNodesRow)
+	{
+		NewNode.Action = FComboAction();
+	}
+	else
+	{
+		NewNode.Action = ComboNodesRow->Action;
+	}
+	
+	return NewNode;
+}
+
 void UComboASComponent::InitializeAbilities()
 {
 	for (auto& Elem : ComboASDataAsset->RollAbilities)
@@ -41,8 +60,9 @@ void UComboASComponent::InitializeAbilities()
 		}
 	}
 
-	for (const FComboNode& Node : ComboASDataAsset->BaseComboNodes)
+	for (const FInitComboNode& InitNode : ComboASDataAsset->InitComboNodes)
 	{
+		FComboNode Node = ConstructComboNode(InitNode);
 		ComboNodes.Add(Node);
 		if (Node.Action.Ability)
 		{
@@ -220,9 +240,24 @@ bool UComboASComponent::ComboInput(EComboInput Input)
 			{
 				if (IsValid(NextNode->Action.Ability))
 				{
+					/*
+					FGameplayAbilitySpec* Spec = FindAbilitySpecFromClass(*NextNode->Action.Ability);
+					for (UGameplayAbility* Instance : Spec->GetAbilityInstances())
+					{
+						if (Instance && Instance->CanBeCanceled())
+						{
+							CancelAbility(Instance);
+						}
+					}*/
+					FGameplayTagContainer CancelTags;
+					CancelTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Combo.Attack")));
+					//void UAbilitySystemComponent::CancelAbilities(const FGameplayTagContainer* WithTags, const FGameplayTagContainer* WithoutTags, UGameplayAbility* Ignore)
+					CancelAbilities(&CancelTags, nullptr, nullptr);
+
 					bool Succees =  TryActivateAbilityByClass(*NextNode->Action.Ability);
 					if (Succees)
 					{
+						BonusPower = 0.f;
 						const FVector DesiredMoveDir = GetMovementInputDirection();
 						RotateYawTowardDesired(GetOwner(), DesiredMoveDir, NextNode->Action.DegreeLimit);
 						bComboEnd = false;
@@ -429,7 +464,7 @@ bool UComboASComponent::CheckPowerNeeded(FComboAction NextAction, float& Diff)
 {
 	if (CurrentComboId == NoneComboId)
 	{
-		Diff = NextAction.PowerNeeded - BasicPower;
+		Diff = NextAction.PowerNeeded - (BasicPower + BonusPower);
 		return Diff <= 0;
 	}
 	FComboNode* CurrentNode = ComboNodes.Find(FComboNode(GetCurrentComboId()));
@@ -469,12 +504,17 @@ bool UComboASComponent::CheckPowerNeeded(FComboAction NextAction, float& Diff)
 
 	if (bBuffed)
 	{
-		Diff = NextAction.PowerNeeded - (BasicPower + CurrentAction.PowerBuffed);
+		Diff = NextAction.PowerNeeded - (BasicPower + BonusPower + CurrentAction.PowerBuffed);
 		return Diff <= 0;
 	}
 	else
 	{
-		Diff = NextAction.PowerNeeded - BasicPower;
+		Diff = NextAction.PowerNeeded - (BasicPower + BonusPower);
 		return Diff <= 0;
 	}
+}
+
+void UComboASComponent::AddBonusPower(float Power)
+{
+	BonusPower += Power;
 }

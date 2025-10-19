@@ -79,9 +79,6 @@ struct FComboNode
 	int32 ComboId;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
-	FName ComboName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
 	FComboAction Action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
@@ -92,6 +89,22 @@ struct FComboNode
 		return ComboId == Other.ComboId;
 	}
 };
+
+USTRUCT(BlueprintType)
+struct FInitComboNode
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
+	int32 ComboId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
+	FName ActionRowName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo Node")
+	TMap<EComboInput, int32> NextComboMap;
+};
+
 
 FORCEINLINE uint32 GetTypeHash(const FComboNode& Node)
 {
@@ -114,7 +127,7 @@ public:
 	TMap<EInputDirection, TSubclassOf<UGameplayAbility>> RollAbilities;
 
 	UPROPERTY(EditAnywhere, Category = "Base Combo")
-	TArray<FComboNode> BaseComboNodes;
+	TArray<FInitComboNode> InitComboNodes;
 };
 
 

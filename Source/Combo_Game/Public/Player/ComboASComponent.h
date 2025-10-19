@@ -15,7 +15,11 @@ class COMBO_GAME_API UComboASComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Init Data")
+	UDataTable* ActionDataTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Init Data")
 	UComboASDataAsset* ComboASDataAsset;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Combo")
@@ -54,6 +58,9 @@ private:
 	bool bComboEnd = true;
 	FTimerHandle ComboEndTimerHandle;
 
+	UPROPERTY()
+	float BonusPower = 0.0f;
+
 public:
 	UComboASComponent();
 
@@ -79,6 +86,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Combo")
 	bool IsComboResetPending() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Combo")
+	void AddBonusPower(float Bonus);
+
 	// 局内获取动作/添加节点
 	UFUNCTION(BlueprintCallable, Category = "Combo RunTime")
 	void AddComboAction(FComboAction NewAction);
@@ -96,6 +106,8 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UFUNCTION()
+	FComboNode ConstructComboNode(FInitComboNode InitNode);
 	UFUNCTION()
 	void InitializeAbilities();
 	UFUNCTION()
